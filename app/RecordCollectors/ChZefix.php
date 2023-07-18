@@ -48,10 +48,10 @@ class ChZefix extends Base
 	];
 
 	/** @var string Username. */
-	private $username;
+	private string $username;
 
 	/** @var string Password. */
-	private $password;
+	private string $password;
 
 	/** {@inheritdoc} */
 	protected $fields = [
@@ -158,6 +158,13 @@ class ChZefix extends Base
 		],
 	];
 
+	/**
+	 * @var array
+	 */
+	protected array $validationMessages = [
+		// to fill messages
+	];
+
 	/** {@inheritdoc} */
 	public function isActive(): bool
 	{
@@ -214,7 +221,7 @@ class ChZefix extends Base
 			}
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getResponse()->getReasonPhrase();
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getResponse()->getReasonPhrase());
 		}
 	}
 
@@ -247,7 +254,7 @@ class ChZefix extends Base
 			}
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getResponse()->getReasonPhrase();
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getResponse()->getReasonPhrase());
 		}
 	}
 
@@ -267,5 +274,19 @@ class ChZefix extends Base
 		$data['zefixDetailWeb'] = $data['zefixDetailWeb']['en'] ?? $data['cantonalExcerptWeb'] ?? '';
 		$data['country'] = 'Switzerland';
 		return \App\Utils::flattenKeys($data, 'ucfirst');
+	}
+
+	// too fill when chzefix wil show up in panel
+	protected function getTranslationResponseMessage(string $message): string
+	{
+
+		switch ($message) {
+//
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
 	}
 }

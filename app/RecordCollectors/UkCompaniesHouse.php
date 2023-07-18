@@ -19,6 +19,15 @@ namespace App\RecordCollectors;
  */
 class UkCompaniesHouse extends Base
 {
+	/** @var string CH sever address */
+	public const EXTERNAL_URL = 'https://find-and-update.company-information.service.gov.uk/company/';
+
+	/** @var string[] Keys to skip in additional */
+	public const REMOVE_KEYS = ['linksSelf', 'linksFiling_history', 'linksOfficers', 'linksPersons_with_significant_control-statements', 'linksCharges'];
+
+	/** @var int Limit for fetching companies */
+	public const LIMIT = 4;
+
 	/** {@inheritdoc} */
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Competition'];
 
@@ -38,7 +47,7 @@ class UkCompaniesHouse extends Base
 	public $docUrl = 'https://developer.company-information.service.gov.uk/';
 
 	/** @var string CH sever address */
-	private $url = 'https://api.company-information.service.gov.uk';
+	private string $url = 'https://api.company-information.service.gov.uk';
 
 	/** {@inheritdoc} */
 	public $settingsFields = [
@@ -48,8 +57,12 @@ class UkCompaniesHouse extends Base
 	/** @var string Api Key. */
 	private $apiKey;
 
-	/** @var string CH sever address */
-	const EXTERNAL_URL = 'https://find-and-update.company-information.service.gov.uk/company/';
+	/**
+	 * @var array
+	 */
+	protected array $validationMessages = [
+		// to fill messages
+	];
 
 	/** {@inheritdoc} */
 	protected $fields = [
@@ -145,11 +158,6 @@ class UkCompaniesHouse extends Base
 		]
 	];
 
-	/** @var string[] Keys to skip in additional */
-	const REMOVE_KEYS = ['linksSelf', 'linksFiling_history', 'linksOfficers', 'linksPersons_with_significant_control-statements', 'linksCharges'];
-
-	/** @var int Limit for fetching companies */
-	const LIMIT = 4;
 
 	/** {@inheritdoc} */
 	public function isActive(): bool
@@ -198,7 +206,7 @@ class UkCompaniesHouse extends Base
 			]);
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getMessage();
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getMessage());
 		}
 		$data = isset($response) ? $this->parseData(\App\Json::decode($response->getBody()->getContents(), true)) : [];
 		if (!empty($data)) {
@@ -240,7 +248,7 @@ class UkCompaniesHouse extends Base
 			}
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getMessage();
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getMessage());
 		}
 		$this->data = $data;
 	}
@@ -289,7 +297,7 @@ class UkCompaniesHouse extends Base
 			]);
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getMessage();
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getMessage());
 		}
 		$names = [];
 		$items = \App\Json::decode($response->getBody()->getContents())['items'];
@@ -299,5 +307,21 @@ class UkCompaniesHouse extends Base
 			}
 		}
 		return $names;
+	}
+
+	//to refactor and move to main method in base class
+	protected function getTranslationResponseMessage(string $message): string
+	{
+		switch ($message) {
+			case 'Not Found':
+				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
+				break;
+//to fill
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
 	}
 }

@@ -63,6 +63,11 @@ class Base
 	public $formFieldsToRecordMap = [];
 
 	/**
+	 * @var array
+	 */
+	protected array $validationMessages = [];
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct()
@@ -156,7 +161,7 @@ class Base
 	 */
 	public function isActive(): bool
 	{
-		return \in_array($this->moduleName, $this->allowedModules);
+		return \in_array($this->moduleName, $this->allowedModules, true);
 	}
 
 	/**
@@ -187,7 +192,7 @@ class Base
 	 *
 	 * @return void
 	 */
-	public function loadData(): void
+	protected function loadData(): void
 	{
 		if (empty($this->data)) {
 			return;
@@ -239,6 +244,7 @@ class Base
 				}
 			}
 		}
+		$this->response['error'] = isset($additional['error'], $additional['message']) ? $additional['message'] : false;
 		$this->response['fields'] = $fieldsData;
 		$this->response['skip'] = $skip;
 		$this->response['keys'] = array_keys($rows);
@@ -295,5 +301,10 @@ class Base
 			}
 		}
 		return $recordModel;
+	}
+
+	protected function getTranslationResponseMessage(string $message): string
+	{
+		// to fill base validation messages
 	}
 }

@@ -39,13 +39,13 @@ class DkCvr extends Base
 	public $docUrl = 'https://cvrapi.dk/documentation';
 
 	/** @var string CH sever address */
-	const EXTERNAL_URL = 'https://cvrapi.dk/virksomhed/';
+	public const EXTERNAL_URL = 'https://cvrapi.dk/virksomhed/';
 
 	/** @var string CH sever address */
-	private $url = 'http://cvrapi.dk/api?';
+	private string $url = 'http://cvrapi.dk/api?';
 
 	/** @var string Token key */
-	private $token;
+	private string $token;
 
 	/** {@inheritdoc} */
 	public $settingsFields = [
@@ -183,6 +183,10 @@ class DkCvr extends Base
 		]
 	];
 
+	protected array $validationMessages = [
+		// to fill messages
+	];
+
 	/** {@inheritdoc} */
 	public function search(): array
 	{
@@ -225,7 +229,7 @@ class DkCvr extends Base
 	 *
 	 * @return void
 	 */
-	private function getDataFromApi($params): void
+	private function getDataFromApi(array $params): void
 	{
 		$params['format'] = 'json';
 		if (!empty($this->token)) {
@@ -233,15 +237,17 @@ class DkCvr extends Base
 		}
 		try {
 			$response = \App\RequestHttp::getClient()->get($this->url . http_build_query($params));
-			if (200 === $response->getStatusCode()) {
-				$this->data = $this->parseData(\App\Json::decode($response->getBody()->getContents()));
-				if (isset($this->data['name'])) {
-					$this->response['links'][0] = self::EXTERNAL_URL . $params['country'] . '/' . urlencode(str_replace(' ', '-', $this->data['name'])) . '/' . urlencode($this->data['vat']);
-				}
+			$this->data = $this->parseData(\App\Json::decode($response->getBody()->getContents()));
+			if (isset($this->data['message']) && $this->data['error']) {
+				$this->data['message'] = $this->getTranslationResponseMessage($this->data['message']);
+			}
+
+			if (isset($this->data['name'])) {
+				$this->response['links'][0] = self::EXTERNAL_URL . $params['country'] . '/' . urlencode(str_replace(' ', '-', $this->data['name'])) . '/' . urlencode($this->data['vat']);
 			}
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getResponse()->getReasonPhrase();
+			$this->response['error'] = $this->getTranslationResponseMessage($this->response['error'] ?? $e->getResponse()->getReasonPhrase());
 		}
 		if ($this->data && empty($this->data['error'])) {
 			switch ($params['country']) {
@@ -267,5 +273,23 @@ class DkCvr extends Base
 	private function parseData(array $data): array
 	{
 		return \App\Utils::flattenKeys($data, 'ucfirst');
+	}
+
+	//to refactor and if possible move to main method in base class
+	protected function getTranslationResponseMessage(string $message): string
+	{
+		switch ($message) {
+			case 'Not Found':
+				$translatedMessage = \App\Language::translate('LBL_DK_CVR_NOT_FOUND', 'Other.RecordCollector');
+				break;
+			case 'You have provided too many options, only one option at a time.':
+				$translatedMessage = \App\Language::translate('LBL_DK_CVR_TO_MANY_OPTIONS', 'Other.RecordCollector');
+				break;
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
 	}
 }

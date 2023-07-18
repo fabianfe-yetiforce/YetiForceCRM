@@ -38,10 +38,10 @@ class NoBrregEnhetsregisteret extends Base
 	public $docUrl = 'https://www.brreg.no/produkter-og-tjenester/apne-data/';
 
 	/** @var string CH sever address */
-	const EXTERNAL_URL = 'https://data.brreg.no/enhetsregisteret/oppslag/enheter/';
+	public const EXTERNAL_URL = 'https://data.brreg.no/enhetsregisteret/oppslag/enheter/';
 
 	/** @var string Enhetsregisteret sever address */
-	private $url = 'https://data.brreg.no/enhetsregisteret/api/enheter/';
+	private string $url = 'https://data.brreg.no/enhetsregisteret/api/enheter/';
 
 	/** {@inheritdoc} */
 	protected $fields = [
@@ -112,12 +112,16 @@ class NoBrregEnhetsregisteret extends Base
 		],
 	];
 
+	protected array $validationMessages = [
+		// to fill messages
+	];
+
 	/** {@inheritdoc} */
 	public function search(): array
 	{
 		$companyNumber = str_replace([' ', ',', '.', '-'], '', $this->request->getByType('companyNumber', 'Text'));
 
-		if (!$this->isActive() && empty($companyNumber)) {
+		if (empty($companyNumber) && !$this->isActive()) {
 			return [];
 		}
 
@@ -140,19 +144,16 @@ class NoBrregEnhetsregisteret extends Base
 			$response = \App\RequestHttp::getClient()->get($this->url . $companyNumber);
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getMessage();
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getMessage());
 			if (400 === $e->getCode()) {
 				$this->response['error'] = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
 				return;
 			}
 		}
-		if (empty($response)) {
-			$this->response['error'] = \App\Language::translate('LBL_COMPANY_NOT_FOUND', 'Other.RecordCollector');
-		} else {
-			$this->data = $this->parseData(\App\Json::decode($response->getBody()->getContents()));
-			$this->response['links'][0] = self::EXTERNAL_URL . $companyNumber;
-			unset($this->data['_linksSelfHref']);
-		}
+		//bez sensu, isset jest zawsze true
+		$this->data = isset($response) ? $this->parseData(\App\Json::decode($response->getBody()->getContents())) : [];
+		$this->response['links'][0] = self::EXTERNAL_URL . $companyNumber;
+		unset($this->data['_linksSelfHref']);
 	}
 
 	/**
@@ -165,5 +166,23 @@ class NoBrregEnhetsregisteret extends Base
 	private function parseData(array $data): array
 	{
 		return \App\Utils::flattenKeys($data, 'ucfirst');
+	}
+
+	//to refactor and move to main method in base class
+	protected function getTranslationResponseMessage(string $message): string
+	{
+		switch ($message) {
+			case 'Not Found':
+				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
+				break;
+			case 'You have provided too many options, only one option at a time.':
+				$translatedMessage = \App\Language::translate('LBL_DK_CVR_TO_MANY_OPTIONS', 'Other.RecordCollector');
+				break;
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
 	}
 }

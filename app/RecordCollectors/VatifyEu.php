@@ -40,7 +40,7 @@ class VatifyEu extends Base
 	public $docUrl = 'https://www.vatify.eu/docs/api/getting-started/';
 
 	/** {@inheritdoc} */
-	private $url = 'https://api.vatify.eu/v1/';
+	private string $url = 'https://api.vatify.eu/v1/';
 
 	/** {@inheritdoc} */
 	public $settingsFields = [
@@ -48,13 +48,13 @@ class VatifyEu extends Base
 		'access_key' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'LBL_ACCESS_KEY'],
 	];
 	/** @var string Access Key. */
-	private $accessKey;
+	private string $accessKey;
 
 	/** @var string Client ID. */
-	private $clientId;
+	private string $clientId;
 
 	/** @var string Bearer Token. */
-	private $bearerToken;
+	private string $bearerToken;
 
 	/** {@inheritdoc} */
 	protected $fields = [
@@ -240,6 +240,13 @@ class VatifyEu extends Base
 		],
 	];
 
+	/**
+	 * @var array
+	 */
+	protected array $validationMessages = [
+		// to fill messages
+	];
+
 	/** {@inheritdoc} */
 	public function isActive(): bool
 	{
@@ -281,7 +288,7 @@ class VatifyEu extends Base
 			$link = $response->getHeaderLine('location');
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getResponse()->getReasonPhrase();
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getResponse()->getReasonPhrase());
 			return;
 		}
 		if (empty($link)) {
@@ -304,7 +311,7 @@ class VatifyEu extends Base
 				}
 			} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 				\App\Log::warning($e->getMessage(), 'RecordCollectors');
-				$this->response['error'] = $e->getResponse()->getReasonPhrase();
+				$this->response['error'] = $this->getTranslationResponseMessage($e->getResponse()->getReasonPhrase());
 				$response = true;
 			}
 			++$counter;
@@ -359,11 +366,27 @@ class VatifyEu extends Base
 			$this->bearerToken = $response['access_token'];
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getResponse()->getReasonPhrase();
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getResponse()->getReasonPhrase());
 			return;
 		}
 		if (empty($this->bearerToken)) {
 			$this->response['error'] = \App\Language::translate('LBL_VATIFY_EU_NO_AUTH', 'Other.RecordCollector');
 		}
+	}
+
+	//to refactor and move to main method in base class
+	protected function getTranslationResponseMessage(string $message): string
+	{
+		switch ($message) {
+			case 'Not Found':
+				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
+				break;
+// to fill
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
 	}
 }

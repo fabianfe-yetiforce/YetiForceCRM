@@ -38,7 +38,7 @@ class BrReceitaWsCnpj extends Base
 	public $docUrl = 'https://developers.receitaws.com.br/#/operations/queryCNPJFree';
 
 	/** @var string CNJP sever address */
-	private $url = 'https://receitaws.com.br/v1/cnpj/';
+	private string $url = 'https://receitaws.com.br/v1/cnpj/';
 
 	/** @var string Api key */
 	private $apiKey;
@@ -68,6 +68,10 @@ class BrReceitaWsCnpj extends Base
 		'Vendors' => [
 			'cnpj' => 'registration_number_1',
 		]
+	];
+
+	protected array $validationMessages = [
+		// to fill messages
 	];
 
 	/** {@inheritdoc} */
@@ -135,11 +139,11 @@ class BrReceitaWsCnpj extends Base
 	/** {@inheritdoc} */
 	public function search(): array
 	{
-		$cnpj = str_replace([' ', '/', '.', '-'], '', $this->request->getByType('cnpj', 'Text'));
-		if (!$this->isActive() || empty($cnpj)) {
+		$cnpjNumber = str_replace([' ', '/', '.', '-'], '', $this->request->getByType('cnpj', 'Text'));
+		if (empty($cnpjNumber) || !$this->isActive()) {
 			return [];
 		}
-		$this->getDataFromApi($cnpj);
+		$this->getDataFromApi($cnpjNumber);
 		$this->loadData();
 		return $this->response;
 	}
@@ -165,20 +169,14 @@ class BrReceitaWsCnpj extends Base
 			$response = \App\RequestHttp::getClient()->get($this->url . $cnpj, $options ?? []);
 			$data = $this->parseData(\App\Json::decode($response->getBody()->getContents()));
 			if (isset($data['status']) && 'ERROR' === $data['status']) {
-				$this->response['error'] = $data['message'];
+				$this->response['error'] = $this->getTranslationResponseMessage($data['message']);
 				unset($this->data['fields']);
 			} else {
 				$this->data = $data;
 			}
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			if (429 === $e->getCode()) {
-				$this->response['error'] = \App\Language::translate('LBL_BR_RECITA_WS_CNPJ_ERROR', 'Other.RecordCollector');
-			} elseif ($e->getCode() > 400) {
-				$this->response['error'] = $e->getResponse()->getReasonPhrase();
-			} else {
-				$this->response['error'] = $e->getMessage();
-			}
+			$this->response['error'] = $this->getTranslationResponseMessage($this->response['error'] ?? $e->getResponse()->getReasonPhrase());
 		}
 	}
 
@@ -204,5 +202,23 @@ class BrReceitaWsCnpj extends Base
 		if (($params = $this->getParams()) && !empty($params['api_key'])) {
 			$this->apiKey = $params['api_key'];
 		}
+	}
+
+	//to refactor and if possible move to main method in base class
+	protected function getTranslationResponseMessage(string $message): string
+	{
+		switch ($message) {
+			case 'CNPJ inválido':
+				$translatedMessage = \App\Language::translate('LBL_BR_RECITA_WS_CNPJ_INVALIDATE', 'Other.RecordCollector');
+				break;
+			case 'Too Many Requests':
+				$translatedMessage = \App\Language::translate('LBL_BR_RECITA_WS_CNPJ_ERROR', 'Other.RecordCollector');
+				break;
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
 	}
 }

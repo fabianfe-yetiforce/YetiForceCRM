@@ -19,6 +19,11 @@ namespace App\RecordCollectors;
  */
 class UsaEdgarRegistryFromSec extends Base
 {
+	// no api key
+
+	/** @var int Central Index Key length */
+	public const CIK_LEN = 10;
+
 	/** {@inheritdoc} */
 	public $allowedModules = ['Accounts', 'Leads', 'Partners', 'Vendors', 'Competition'];
 
@@ -38,7 +43,7 @@ class UsaEdgarRegistryFromSec extends Base
 	public $docUrl = 'https://www.sec.gov/edgar/sec-api-documentation';
 
 	/** @var string SEC sever address */
-	protected $url = 'https://data.sec.gov/submissions/CIK';
+	protected string $url = 'https://data.sec.gov/submissions/CIK';
 
 	/** {@inheritdoc} */
 	protected $fields = [
@@ -132,8 +137,12 @@ class UsaEdgarRegistryFromSec extends Base
 		]
 	];
 
-	/** @var int Central Index Key length */
-	const CIK_LEN = 10;
+	/**
+	 * @var array
+	 */
+	protected array $validationMessages = [
+		// to fill messages
+	];
 
 	/** {@inheritdoc} */
 	public function search(): array
@@ -167,13 +176,13 @@ class UsaEdgarRegistryFromSec extends Base
 		try {
 			$response = \App\RequestHttp::getClient()->get($this->url . $cik . '.json', [
 				'headers' => [
-					'User-Agent' => 'YetiForce S. A. devs@yetiforce.com',
+					'User-Agent' => 'YetiForce S. A. devs@yetiforce.com',  /////////// ?????????????????????????
 				],
 			]);
 			$this->data = isset($response) ? \App\Json::decode($response->getBody()->getContents()) : [];
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getMessage();
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getMessage());
 		}
 	}
 
@@ -189,5 +198,24 @@ class UsaEdgarRegistryFromSec extends Base
 		}
 		unset($this->data['filings']);
 		$this->data = \App\Utils::flattenKeys($this->data, 'ucfirst');
+	}
+
+	//to refactor and move to main method in base class
+	protected function getTranslationResponseMessage(string $message): string
+	{
+		//to fill
+		switch ($message) {
+			case 'Not Found':
+				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
+				break;
+			case 'option for no api key':
+				$translatedMessage ='';
+				break;
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
 	}
 }

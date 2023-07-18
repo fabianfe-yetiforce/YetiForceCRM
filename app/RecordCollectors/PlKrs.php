@@ -38,7 +38,7 @@ class PlKrs extends Base
 	public $docUrl = 'https://prs.ms.gov.pl/krs/openApi';
 
 	/** @var string KRS sever address */
-	protected $url = 'https://api-krs.ms.gov.pl/api/krs/OdpisAktualny/';
+	protected string $url = 'https://api-krs.ms.gov.pl/api/krs/OdpisAktualny/';
 
 	/** {@inheritdoc} */
 	protected $fields = [
@@ -119,6 +119,10 @@ class PlKrs extends Base
 		]
 	];
 
+	protected array $validationMessages = [
+		// to fill messages
+	];
+
 	/** {@inheritdoc} */
 	public function search(): array
 	{
@@ -151,7 +155,7 @@ class PlKrs extends Base
 			$this->data = \App\Json::decode($responseData->getBody()->getContents())['odpis'] ?? [];
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getMessage();
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getResponse()->getReasonPhrase());
 		}
 	}
 
@@ -193,5 +197,20 @@ class PlKrs extends Base
 	private function convertPkd(array &$pkd): void
 	{
 		$pkd = $pkd['kodDzial'] . '.' . $pkd['kodKlasa'] . '.' . $pkd['kodPodklasa'];
+	}
+
+//to refactor and move to main method in base class
+	protected function getTranslationResponseMessage(string $message): string
+	{
+		switch ($message) {
+			case 'Not Found':
+				$translatedMessage = \App\Language::translate('LBL_NO_FOUND_RECORD', 'Other.RecordCollector');
+				break;
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
 	}
 }

@@ -116,7 +116,6 @@ class Gus extends Base
 			'Powiat' => 'addresslevel3a',
 			'Wojewodztwo' => 'addresslevel2a',
 			'Kraj' => 'addresslevel1a',
-			'NumerBudynku' => 'buildingnumbera',
 			'NumerTelefonu' => 'phone',
 			'NumerFaksu' => 'fax',
 			'AdresEmail' => 'email',
@@ -162,6 +161,13 @@ class Gus extends Base
 			'Wojewodztwo' => 'addresslevel2a',
 			'Kraj' => 'addresslevel1a',
 		],
+	];
+
+	/**
+	 * @var array
+	 */
+	protected array $validationMessages = [
+		// to fill messages
 	];
 
 	/** {@inheritdoc} */
@@ -230,6 +236,7 @@ class Gus extends Base
 						}
 					}
 				}
+				$this->response['error'] = isset($additional['error'], $additional['message']) ? $additional['message'] : false;
 				$response['fields'] = $fieldsData;
 				$response['additional'] = $additional;
 				$response['keys'] = array_keys($infoFromGus);
@@ -257,5 +264,11 @@ class Gus extends Base
 			$params[] = 'pkd';
 		}
 		return $params;
+	}
+
+	//to refactor to main method in base class
+	protected function getTranslationResponseMessage(string $message): string
+	{
+
 	}
 }

@@ -37,7 +37,7 @@ class Vies extends Base
 	public $docUrl = 'https://ec.europa.eu/taxation_customs/vies/technicalInformation.html';
 
 	/** @var string Vies server address. */
-	protected $url = 'https://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl';
+	protected string $url = 'https://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl';
 
 	/** {@inheritdoc} */
 	protected $fields = [
@@ -104,6 +104,13 @@ class Vies extends Base
 		],
 	];
 
+	/**
+	 * @var array
+	 */
+	protected array $validationMessages = [
+		// to fill messages
+	];
+
 	/** {@inheritdoc} */
 	public function getFields(): array
 	{
@@ -150,8 +157,24 @@ class Vies extends Base
 			}
 		} catch (\SoapFault $e) {
 			\App\Log::warning($e->faultstring, 'RecordCollectors');
-			$response['error'] = $e->faultstring;
+			$response['error'] = $this->getTranslationResponseMessage($e->faultstring);
 		}
 		return $response;
+	}
+
+	//to refactor and move to main method in base class
+	protected function getTranslationResponseMessage(string $message): string
+	{
+		switch ($message) {
+			case 'Not Found':
+				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
+				break;
+//to fill
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
 	}
 }

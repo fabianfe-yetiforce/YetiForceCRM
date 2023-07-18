@@ -39,7 +39,7 @@ class UkVatPayerStatusVerification extends Base
 	public $docUrl = 'https://developer.service.hmrc.gov.uk/api-documentation';
 
 	/** @var string API sever address */
-	protected $url = 'https://api.service.hmrc.gov.uk/';
+	protected string $url = 'https://api.service.hmrc.gov.uk/';
 
 	/** {@inheritdoc} */
 	protected $fields = [
@@ -69,6 +69,13 @@ class UkVatPayerStatusVerification extends Base
 		],
 	];
 
+	/**
+	 * @var array
+	 */
+	protected array $validationMessages = [
+		// to fill messages
+	];
+
 	/** {@inheritdoc} */
 	public function search(): array
 	{
@@ -86,7 +93,7 @@ class UkVatPayerStatusVerification extends Base
 				->getContents());
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getMessage();
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getMessage());
 		}
 		if (isset($response['target'])) {
 			$response['fields'] = [
@@ -98,10 +105,29 @@ class UkVatPayerStatusVerification extends Base
 				'Country' => $response['target']['address']['countryCode']
 			];
 		} else {
+			//
 			$response['fields'] = [
 				'' => \App\Language::translate('LBL_UK_VAT_PAYER_NOT_CONFIRM', 'Other.RecordCollector')
 			];
 		}
 		return $response;
+	}
+
+	//to refactor and move to main method in base class
+	protected function getTranslationResponseMessage(string $message): string
+	{
+		switch ($message) {
+			case 'Not Found':
+				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
+				break;
+			case 'option for no api key':
+				$translatedMessage ='';
+				break;
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
 	}
 }

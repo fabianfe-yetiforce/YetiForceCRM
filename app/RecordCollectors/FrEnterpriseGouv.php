@@ -21,6 +21,9 @@ namespace App\RecordCollectors;
  */
 class FrEnterpriseGouv extends Base
 {
+	/** @var int Number of items returned */
+	const LIMIT = 4;
+
 	/** {@inheritdoc} */
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
 
@@ -40,7 +43,7 @@ class FrEnterpriseGouv extends Base
 	public $docUrl = 'https://api.gouv.fr/les-api/api-entreprise/';
 
 	/** @var string Server address */
-	private $url = 'https://recherche-entreprises.api.gouv.fr/';
+	private string $url = 'https://recherche-entreprises.api.gouv.fr/';
 
 	/** {@inheritdoc} */
 	protected $fields = [
@@ -127,8 +130,9 @@ class FrEnterpriseGouv extends Base
 		],
 	];
 
-	/** @var int Number of items returned */
-	const LIMIT = 4;
+	protected array $validationMessages = [
+		// to fill messages
+	];
 
 	/** {@inheritdoc} */
 	public function search(): array
@@ -174,11 +178,13 @@ class FrEnterpriseGouv extends Base
 			$data = isset($response) ? \App\Json::decode($response->getBody()->getContents()) : [];
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $e->getMessage();
+
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getMessage());
 		}
 		if (empty($data)) {
 			return;
 		}
+
 		foreach ($data['results'] as $key => $result) {
 			$this->data[$key] = $this->parseData($result);
 		}
@@ -194,5 +200,20 @@ class FrEnterpriseGouv extends Base
 	private function parseData(array $data): array
 	{
 		return \App\Utils::flattenKeys($data, 'ucfirst');
+	}
+
+	//to refactor and if possible move to main method in base class
+	protected function getTranslationResponseMessage(string $message): string
+	{
+		switch ($message) {
+			case 'Not Found':
+				$translatedMessage = \App\Language::translate('LBL_DK_CVR_NOT_FOUND', 'Other.RecordCollector');
+				break;
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
 	}
 }
