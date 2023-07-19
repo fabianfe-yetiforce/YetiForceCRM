@@ -12,13 +12,15 @@
 
 namespace App\RecordCollectors;
 
+use App\Request;
+
 /**
  * Base record collector class.
  */
 class Base
 {
 	/** @var string Module name. */
-	public $moduleName;
+	public string $moduleName;
 
 	/** @var string Record collector name. */
 	protected $name;
@@ -27,40 +29,40 @@ class Base
 	public $allowedModules;
 
 	/** @var string Icon. */
-	public $icon;
+	public string $icon;
 
 	/** @var string Label. */
-	public $label;
+	public string $label;
 
 	/** @var string Additional description, visible in the modal window. */
-	public $description;
+	public string $description;
 
 	/** @var string Search results display type. */
-	public $displayType;
+	public string $displayType;
 
 	/** @var array Configuration field list. */
-	public $settingsFields = [];
+	public array $settingsFields = [];
 
 	/** @var string Url to Documentation API */
-	public $docUrl;
+	public string $docUrl;
 
 	/** var array List of fields for the modal search window. */
-	protected $fields = [];
+	protected array $fields = [];
 
 	/** @var array Data from record collector source. */
-	protected $data = [];
+	protected array $data = [];
 
 	/** @var array Response data. */
-	protected $response = [];
+	protected array $response = [];
 
 	/** @var \App\Request Request instance. */
-	protected $request;
+	protected \App\Request $request;
 
 	/** @var array Fields mapping for loading record data. */
-	protected $modulesFieldsMap = [];
+	protected array $modulesFieldsMap = [];
 
 	/** @var array Form mapping for loading record data. */
-	public $formFieldsToRecordMap = [];
+	public array $formFieldsToRecordMap = [];
 
 	/**
 	 * @var array
@@ -303,8 +305,66 @@ class Base
 		return $recordModel;
 	}
 
+	public function setDataFromRequest(Request $request): void
+	{
+		foreach ($this->getEditFields() as $fieldName => $fieldModel) {
+			if ($request->has($fieldName)) {
+				$value = $request->isEmpty($fieldName) && !$fieldModel->isMandatory() ? '' : $request->getByType($fieldName, $fieldModel->get('purifyType'));
+				if ('api_key' === $fieldName) {
+					$value = App\Encryption::getInstance()->encrypt($value);
+				}
+				$fieldModel->getUITypeModel()->validate($value, true);
+				$value = $fieldModel->getUITypeModel()->getDBValue($value);
+
+				if (\in_array($fieldName, ['api_key', 'modules'])) {
+					$this->set($fieldName, $value);
+				} else {
+					$parameters = $this->getParameters();
+					$parameters[$fieldName] = $value;
+					$this->set('parameters', \App\Json::encode($parameters));
+				}
+			}
+		}
+	}
+
+	public function getEditFields(): array
+	{
+		$fields = [];
+		foreach (['api_key', 'modules'] as $fieldName) {
+			$fields[$fieldName] = $this->getFieldInstanceByName($fieldName);
+		}
+
+		return $fields;
+	}
+
+	public function getFieldInstanceByName(string $name)
+	{
+		$moduleName = 'Settings:RecordCollector';
+		$field = ['uitype' => 33, 'column' => $name, 'name' => $name, 'displaytype' => 1, 'typeofdata' => 'V~M', 'presence' => 0, 'isEditableReadOnly' => false];
+		switch ($name) {
+			case 'api_key':
+				$field['uitype'] = 99;
+				$field['label'] = 'FL_API_KEY';
+				$field['purifyType'] = \App\Purifier::ALNUM;
+				$field['fromOutsideList'] = true;
+				$field['maximumlength'] = '100';
+				break;
+			case 'modules':
+				$field['uitype'] = 33;
+				$field['label'] = 'LBL_MODULES';
+				$field['typeofdata'] = 'V~O';
+				$field['maximumlength'] = '65535';
+				$field['purifyType'] = \App\Purifier::TEXT;
+				break;
+			default:
+				$field = [];
+				break;
+		}
+
+		return $field ? \Vtiger_Field_Model::init($moduleName, $field, $name) : null;
+	}
+
 	protected function getTranslationResponseMessage(string $message): string
 	{
 		// to fill base validation messages
-	}
-}
+	}}

@@ -26,25 +26,25 @@ class NorthData extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-north-data';
+	public string $icon = 'yfi-north-data';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_NORTH_DATA';
+	public string $label = 'LBL_NORTH_DATA';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_NORTH_DATA_DESC';
+	public string $description = 'LBL_NORTH_DATA_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://www.northdata.com/_data';
+	public string $docUrl = 'https://www.northdata.com/_data';
 
 	/** @var string NorthData sever address */
-	protected $url = 'https://www.northdata.com/_api/';
+	protected string $url = 'https://www.northdata.com/_api/';
 
 	/** {@inheritdoc} */
-	public $settingsFields = [
+	public array $settingsFields = [
 		'api_key' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'LBL_API_KEY']
 	];
 
@@ -52,7 +52,7 @@ class NorthData extends Base
 	private $apiKey;
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'companyName' => [
 			'labelModule' => '_Base',
 			'label' => 'Account Name',
@@ -76,7 +76,7 @@ class NorthData extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'companyName' => 'accountname',
 		],
@@ -95,7 +95,7 @@ class NorthData extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'nameName' => 'accountname',
 			'registerId' => 'registration_number_1',
@@ -191,10 +191,10 @@ class NorthData extends Base
 				$suggestResponse = \App\Json::decode($suggestResponse->getBody()->getContents());
 				foreach ($suggestResponse['results'] as $key => $company) {
 					$companyResponse = $client->get($this->url . 'company/v1/company?' . http_build_query([
-						'companyId' => $company['company']['id'],
-						'financials' => true, 'relations' => true, 'sheets' => true, 'extras' => true,
-						'language' => $language,
-					]));
+							'companyId' => $company['company']['id'],
+							'financials' => true, 'relations' => true, 'sheets' => true, 'extras' => true,
+							'language' => $language,
+						]));
 					$companyResponse = \App\Json::decode($companyResponse->getBody()->getContents());
 					$this->response['links'][$key] = $companyResponse['northDataUrl'];
 					$this->data[$key] = $this->parseData($companyResponse);

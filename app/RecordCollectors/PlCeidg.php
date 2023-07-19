@@ -22,22 +22,22 @@ class PlCeidg extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-cedig-pl';
+	public string $icon = 'yfi-cedig-pl';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_PL_CEIDG';
+	public string $label = 'LBL_PL_CEIDG';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_PL_CEIDG_DESC';
+	public string $description = 'LBL_PL_CEIDG_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://dane.biznes.gov.pl';
+	public string $docUrl = 'https://dane.biznes.gov.pl';
 
 	/** {@inheritdoc} */
-	public $settingsFields = [
+	public array $settingsFields = [
 		'api_key' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'LBL_API_KEY'],
 	];
 
@@ -48,7 +48,7 @@ class PlCeidg extends Base
 	private $apiKey;
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'vatId' => [
 			'labelModule' => '_Base',
 			'label' => 'Vat ID',
@@ -68,7 +68,7 @@ class PlCeidg extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'vatId' => 'vat_id',
 			'taxNumber' => 'registration_number_2',
@@ -95,7 +95,7 @@ class PlCeidg extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'nazwa' => 'accountname',
 			'email' => 'email1',

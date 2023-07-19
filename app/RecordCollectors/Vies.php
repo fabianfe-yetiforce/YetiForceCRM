@@ -22,25 +22,25 @@ class Vies extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Competition', 'Partners'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi yfi-vies';
+	public string $icon = 'yfi yfi-vies';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_VIES';
+	public string $label = 'LBL_VIES';
 
 	/** {@inheritdoc} */
-	public $displayType = 'Summary';
+	public string $displayType = 'Summary';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_VIES_DESC';
+	public string $description = 'LBL_VIES_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://ec.europa.eu/taxation_customs/vies/technicalInformation.html';
+	public string $docUrl = 'https://ec.europa.eu/taxation_customs/vies/technicalInformation.html';
 
 	/** @var string Vies server address. */
 	protected string $url = 'https://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl';
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'countryCode' => [
 			'label' => 'Country',
 			'labelModule' => '_Base',
@@ -86,7 +86,7 @@ class Vies extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'vatNumber' => 'vat_id',
 		],
@@ -102,13 +102,6 @@ class Vies extends Base
 		'Partners' => [
 			'vatNumber' => 'vat_id',
 		],
-	];
-
-	/**
-	 * @var array
-	 */
-	protected array $validationMessages = [
-		// to fill messages
 	];
 
 	/** {@inheritdoc} */
@@ -138,20 +131,20 @@ class Vies extends Base
 		$response = [];
 		try {
 			if ($client = new \SoapClient($this->url, \App\RequestHttp::getSoapOptions())) {
-				$r = $client->checkVatApprox([
+				$responseData = $client->checkVatApprox([
 					'countryCode' => $countryCode,
 					'vatNumber' => $vatNumber,
 					'requesterCountryCode' => $countryCode,
 					'requesterVatNumber' => $vatNumber
 				]);
-				if ($r->valid) {
+				if ($responseData->valid) {
 					$response['fields'] = [
-						'Country' => $r->countryCode,
-						'Vat ID' => $r->countryCode . $r->vatNumber,
-						'LBL_COMPANY_NAME' => $r->traderName,
-						'Address details' => $r->traderAddress,
-						'LBL_REQUEST_DATE' => $r->requestDate,
-						'LBL_REQUEST_ID' => $r->requestIdentifier
+						'Country' => $responseData->countryCode,
+						'Vat ID' => $responseData->countryCode . $responseData->vatNumber,
+						'LBL_COMPANY_NAME' => $responseData->traderName,
+						'Address details' => $responseData->traderAddress,
+						'LBL_REQUEST_DATE' => $responseData->requestDate,
+						'LBL_REQUEST_ID' => $responseData->requestIdentifier
 					];
 				}
 			}
@@ -162,14 +155,12 @@ class Vies extends Base
 		return $response;
 	}
 
-	//to refactor and move to main method in base class
 	protected function getTranslationResponseMessage(string $message): string
 	{
 		switch ($message) {
 			case 'Not Found':
-				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
+				$translatedMessage = \App\Language::translate('LBL_BAD_REQUEST', 'Other.RecordCollector');
 				break;
-//to fill
 			default :
 				$translatedMessage = $message;
 				break;

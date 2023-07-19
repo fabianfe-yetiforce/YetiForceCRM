@@ -23,19 +23,19 @@ class BrReceitaWsCnpj extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-receita-cnpj-br';
+	public string $icon = 'yfi-receita-cnpj-br';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_BR_RECITA_WS_CNPJ';
+	public string $label = 'LBL_BR_RECITA_WS_CNPJ';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_BR_RECITA_WS_CNPJ_DESC';
+	public string $description = 'LBL_BR_RECITA_WS_CNPJ_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://developers.receitaws.com.br/#/operations/queryCNPJFree';
+	public string $docUrl = 'https://developers.receitaws.com.br/#/operations/queryCNPJFree';
 
 	/** @var string CNJP sever address */
 	private string $url = 'https://receitaws.com.br/v1/cnpj/';
@@ -44,12 +44,14 @@ class BrReceitaWsCnpj extends Base
 	private $apiKey;
 
 	/** {@inheritdoc} */
-	public $settingsFields = [
-		'api_key' => ['required' => 0, 'purifyType' => 'Text', 'label' => 'LBL_API_KEY_OPTIONAL'],
+	public array $settingsFields = [
+		'api_key' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'LBL_API_KEY_OPTIONAL'],
+		//zrobic arraymerge z class base
+		'modules' => ['required' => 0, 'purifyType' => 'Text', 'label' => 'LBL_MODULES'],
 	];
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'cnpj' => [
 			'labelModule' => 'Other.RecordCollector',
 			'label' => 'LBL_BR_RECITA_WS_CNPJ_NUMBER',
@@ -58,7 +60,7 @@ class BrReceitaWsCnpj extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'cnpj' => 'registration_number_1',
 		],
@@ -75,7 +77,7 @@ class BrReceitaWsCnpj extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'nome' => 'accountname',
 			'fantasia' => 'accountname',
@@ -155,7 +157,7 @@ class BrReceitaWsCnpj extends Base
 	 *
 	 * @return void
 	 */
-	private function getDataFromApi(string $cnpj): void
+	private function getDataFromApi(string $cnpjNumber): void
 	{
 		try {
 			$this->setApiKey();
@@ -166,14 +168,16 @@ class BrReceitaWsCnpj extends Base
 					]
 				];
 			}
-			$response = \App\RequestHttp::getClient()->get($this->url . $cnpj, $options ?? []);
+			$response = \App\RequestHttp::getClient()->get($this->url . $cnpjNumber, $options ?? []);
 			$data = $this->parseData(\App\Json::decode($response->getBody()->getContents()));
+// na froncie wrzucić require na pole z numerem
 			if (isset($data['status']) && 'ERROR' === $data['status']) {
 				$this->response['error'] = $this->getTranslationResponseMessage($data['message']);
 				unset($this->data['fields']);
 			} else {
 				$this->data = $data;
 			}
+
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
 			$this->response['error'] = $this->getTranslationResponseMessage($this->response['error'] ?? $e->getResponse()->getReasonPhrase());
@@ -204,7 +208,6 @@ class BrReceitaWsCnpj extends Base
 		}
 	}
 
-	//to refactor and if possible move to main method in base class
 	protected function getTranslationResponseMessage(string $message): string
 	{
 		switch ($message) {
@@ -212,7 +215,7 @@ class BrReceitaWsCnpj extends Base
 				$translatedMessage = \App\Language::translate('LBL_BR_RECITA_WS_CNPJ_INVALIDATE', 'Other.RecordCollector');
 				break;
 			case 'Too Many Requests':
-				$translatedMessage = \App\Language::translate('LBL_BR_RECITA_WS_CNPJ_ERROR', 'Other.RecordCollector');
+				$translatedMessage = \App\Language::translate('LBL_TOO_MANY_REQUESTS', 'Other.RecordCollector');
 				break;
 			default :
 				$translatedMessage = $message;

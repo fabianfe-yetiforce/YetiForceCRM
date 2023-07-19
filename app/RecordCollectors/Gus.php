@@ -25,22 +25,22 @@ class Gus extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Competition', 'Partners'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-gus-regon-pl';
+	public string $icon = 'yfi-gus-regon-pl';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_PL_GUS';
+	public string $label = 'LBL_PL_GUS';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_PL_GUS_DESC';
+	public string $description = 'LBL_PL_GUS_DESC';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://api.stat.gov.pl/Home/RegonApi';
+	public string $docUrl = 'https://api.stat.gov.pl/Home/RegonApi';
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'vatId' => [
 			'labelModule' => '_Base',
 			'label' => 'Vat ID',
@@ -56,7 +56,7 @@ class Gus extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'vatId' => 'vat_id',
 			'taxNumber' => 'registration_number_2',
@@ -83,7 +83,7 @@ class Gus extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'Nazwa' => 'accountname',
 			'Regon' => 'registration_number_2',
@@ -182,6 +182,7 @@ class Gus extends Base
 		$response = [];
 		$moduleName = $this->request->getModule();
 		$client = \App\RecordCollectors\Helper\GusClient::getInstance($this->getClientParams($moduleName));
+
 		try {
 			$infoFromGus = $client->search($vatId, $ncr, $taxNumber);
 			$response['recordModel'] = $this->getRecordModel();
@@ -236,7 +237,6 @@ class Gus extends Base
 						}
 					}
 				}
-				$this->response['error'] = isset($additional['error'], $additional['message']) ? $additional['message'] : false;
 				$response['fields'] = $fieldsData;
 				$response['additional'] = $additional;
 				$response['keys'] = array_keys($infoFromGus);
@@ -264,11 +264,5 @@ class Gus extends Base
 			$params[] = 'pkd';
 		}
 		return $params;
-	}
-
-	//to refactor to main method in base class
-	protected function getTranslationResponseMessage(string $message): string
-	{
-
 	}
 }

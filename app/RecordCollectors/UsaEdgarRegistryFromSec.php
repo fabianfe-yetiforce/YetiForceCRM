@@ -28,25 +28,25 @@ class UsaEdgarRegistryFromSec extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Partners', 'Vendors', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-edgar-usa';
+	public string $icon = 'yfi-edgar-usa';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_USA_EDGAR';
+	public string $label = 'LBL_USA_EDGAR';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_USA_EDGAR_DESC';
+	public string $description = 'LBL_USA_EDGAR_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://www.sec.gov/edgar/sec-api-documentation';
+	public string $docUrl = 'https://www.sec.gov/edgar/sec-api-documentation';
 
 	/** @var string SEC sever address */
 	protected string $url = 'https://data.sec.gov/submissions/CIK';
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'cik' => [
 			'labelModule' => '_Base',
 			'label' => 'Registration number 1',
@@ -55,7 +55,7 @@ class UsaEdgarRegistryFromSec extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'cik' => 'registration_number_1',
 		],
@@ -68,7 +68,7 @@ class UsaEdgarRegistryFromSec extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'name' => 'accountname',
 			'cik' => 'registration_number_1',

@@ -24,25 +24,25 @@ class UkVatPayerStatusVerification extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Competition', 'Partners'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-vat-uk';
+	public string $icon = 'yfi-vat-uk';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_UK_VAT_PAYER';
+	public string $label = 'LBL_UK_VAT_PAYER';
 
 	/** {@inheritdoc} */
-	public $displayType = 'Summary';
+	public string $displayType = 'Summary';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_UK_VAT_PAYER_DESC';
+	public string $description = 'LBL_UK_VAT_PAYER_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://developer.service.hmrc.gov.uk/api-documentation';
+	public string $docUrl = 'https://developer.service.hmrc.gov.uk/api-documentation';
 
 	/** @var string API sever address */
 	protected string $url = 'https://api.service.hmrc.gov.uk/';
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'vatNumber' => [
 			'labelModule' => '_Base',
 			'label' => 'Vat ID',
@@ -51,7 +51,7 @@ class UkVatPayerStatusVerification extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'vatNumber' => 'vat_id',
 		],
@@ -93,7 +93,7 @@ class UkVatPayerStatusVerification extends Base
 				->getContents());
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $this->getTranslationResponseMessage($e->getMessage());
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getResponse()->getReasonPhrase());
 		}
 		if (isset($response['target'])) {
 			$response['fields'] = [
@@ -105,7 +105,6 @@ class UkVatPayerStatusVerification extends Base
 				'Country' => $response['target']['address']['countryCode']
 			];
 		} else {
-			//
 			$response['fields'] = [
 				'' => \App\Language::translate('LBL_UK_VAT_PAYER_NOT_CONFIRM', 'Other.RecordCollector')
 			];
@@ -113,15 +112,11 @@ class UkVatPayerStatusVerification extends Base
 		return $response;
 	}
 
-	//to refactor and move to main method in base class
 	protected function getTranslationResponseMessage(string $message): string
 	{
 		switch ($message) {
-			case 'Not Found':
-				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
-				break;
-			case 'option for no api key':
-				$translatedMessage ='';
+			case 'Bad Request':
+				$translatedMessage = \App\Language::translate('LBL_BAD_REQUEST', 'Other.RecordCollector');
 				break;
 			default :
 				$translatedMessage = $message;

@@ -19,37 +19,40 @@ namespace App\RecordCollectors;
  */
 class OrbIntelligence extends Base
 {
+	/** @var int Limit for fetching companies */
+	public const LIMIT = 4;
+
 	/** {@inheritdoc} */
 	public $allowedModules = ['Accounts', 'Leads', 'Partners', 'Vendors', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-orb';
+	public string $icon = 'yfi-orb';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_ORB';
+	public string $label = 'LBL_ORB';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_ORB_DESC';
+	public string $description = 'LBL_ORB_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://api.orb-intelligence.com/';
+	public string $docUrl = 'https://api.orb-intelligence.com/';
 
 	/** {@inheritdoc} */
-	public $settingsFields = [
+	public array $settingsFields = [
 		'api_key' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'LBL_API_KEY']
 	];
 
 	/** @var string ORB Intelligence sever address */
-	protected $url = 'https://api.orb-intelligence.com/';
+	protected string $url = 'https://api.orb-intelligence.com/';
 
 	/** @var string Api Key. */
-	private $apiKey;
+	private string $apiKey;
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'country' => [
 			'labelModule' => '_Base',
 			'label' => 'Country',
@@ -75,7 +78,7 @@ class OrbIntelligence extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'name' => 'accountname',
 			'country' => 'addresslevel1a',
@@ -89,8 +92,6 @@ class OrbIntelligence extends Base
 			'vatNumber' => 'vat_id',
 			'email' => 'email',
 			'phone' => 'phone',
-			'email' => 'email',
-			'phone' => 'phone'
 		],
 		'Vendors' => [
 			'country' => 'addresslevel1a',
@@ -116,7 +117,7 @@ class OrbIntelligence extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'name' => 'accountname',
 			'eins0' => 'vat_id',
@@ -191,9 +192,6 @@ class OrbIntelligence extends Base
 			'addressCountry' => 'addresslevel1a'
 		]
 	];
-
-	/** @var int Limit for fetching companies */
-	const LIMIT = 4;
 
 	/** {@inheritdoc} */
 	public function isActive(): bool

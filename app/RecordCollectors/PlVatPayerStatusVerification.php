@@ -25,25 +25,25 @@ class PlVatPayerStatusVerification extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Competition', 'Partners'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-vat-pl';
+	public string $icon = 'yfi-vat-pl';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_PL_VAT_PAYER';
+	public string $label = 'LBL_PL_VAT_PAYER';
 
 	/** {@inheritdoc} */
-	public $displayType = 'Summary';
+	public string $displayType = 'Summary';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_PL_VAT_PAYER_DESC';
+	public string $description = 'LBL_PL_VAT_PAYER_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://www.podatki.gov.pl/e-deklaracje/dokumentacja-it/';
+	public string $docUrl = 'https://www.podatki.gov.pl/e-deklaracje/dokumentacja-it/';
 
 	/** @var string MF sever address */
-	protected $url = 'https://sprawdz-status-vat.mf.gov.pl/?wsdl';
+	protected string $url = 'https://sprawdz-status-vat.mf.gov.pl/?wsdl';
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'vatNumber' => [
 			'labelModule' => '_Base',
 			'label' => 'Vat ID',
@@ -52,7 +52,7 @@ class PlVatPayerStatusVerification extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'vatNumber' => 'vat_id',
 		],
@@ -82,15 +82,20 @@ class PlVatPayerStatusVerification extends Base
 		}
 		try {
 			if ($client = new \SoapClient($this->url, \App\RequestHttp::getSoapOptions())) {
-				$r = $client->sprawdzNIP($vatNumber);
-				$response['fields'] = [
-					'' => $r->Komunikat
-				];
+				$responseData = $client->sprawdzNIP($vatNumber);
+				if ($responseData->Kod === "I") {
+					$response['error'] = \App\Language::translate('LBL_INCORRECT_VAT_NUMBER', 'Other.RecordCollector');
+				} else {
+					$response['fields'] = [
+						'' => $responseData->Komunikat
+					];
+				}
 			}
 		} catch (\SoapFault $e) {
 			\App\Log::warning($e->faultstring, 'RecordCollectors');
 			$response['error'] = $e->faultstring;
 		}
+
 		return $response;
 	}
 }

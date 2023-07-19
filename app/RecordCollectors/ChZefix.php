@@ -24,25 +24,25 @@ class ChZefix extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-zefix-ch';
+	public string $icon = 'yfi-zefix-ch';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_CH_ZEFIX';
+	public string $label = 'LBL_CH_ZEFIX';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_CH_ZEFIX_DESC';
+	public string $description = 'LBL_CH_ZEFIX_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://www.zefix.admin.ch/';
+	public string $docUrl = 'https://www.zefix.admin.ch/';
 
 	/** {@inheritdoc} */
 	private $url = 'https://www.zefix.admin.ch/ZefixPublicREST/api/v1/company/';
 
 	/** {@inheritdoc} */
-	public $settingsFields = [
+	public array $settingsFields = [
 		'username' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'Username'],
 		'password' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'Password'],
 	];
@@ -54,7 +54,7 @@ class ChZefix extends Base
 	private string $password;
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'companyName' => [
 			'labelModule' => '_Base',
 			'label' => 'Account name',
@@ -66,7 +66,7 @@ class ChZefix extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'companyId' => 'registration_number_1',
 			'companyName' => 'accountname'
@@ -86,7 +86,7 @@ class ChZefix extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'name' => 'accountname',
 			'translation1' => 'accountname',

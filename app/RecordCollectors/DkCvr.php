@@ -24,19 +24,19 @@ class DkCvr extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-cvr-dk';
+	public string $icon = 'yfi-cvr-dk';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_DK_CVR';
+	public string $label = 'LBL_DK_CVR';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_DK_CVR_DESC';
+	public string $description = 'LBL_DK_CVR_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://cvrapi.dk/documentation';
+	public string $docUrl = 'https://cvrapi.dk/documentation';
 
 	/** @var string CH sever address */
 	public const EXTERNAL_URL = 'https://cvrapi.dk/virksomhed/';
@@ -48,12 +48,12 @@ class DkCvr extends Base
 	private string $token;
 
 	/** {@inheritdoc} */
-	public $settingsFields = [
+	public array $settingsFields = [
 		'token' => ['required' => 0, 'purifyType' => 'Text', 'label' => 'LBL_API_KEY_OPTIONAL'],
 	];
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'country' => [
 			'labelModule' => '_Base',
 			'label' => 'Country',
@@ -80,7 +80,7 @@ class DkCvr extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'vatNumber' => 'vat_id',
 		],
@@ -99,7 +99,7 @@ class DkCvr extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'name' => 'accountname',
 			'vat' => 'vat_id',
@@ -200,7 +200,7 @@ class DkCvr extends Base
 		if ($phone = $this->request->getByType('phone', 'Text')) {
 			$params['phone'] = $phone;
 		}
-		if (!$this->isActive() && empty($params)) {
+		if (empty($params) && !$this->isActive()) {
 			return [];
 		}
 		$params['country'] = $this->request->getByType('country', 'Text');
@@ -238,17 +238,17 @@ class DkCvr extends Base
 		try {
 			$response = \App\RequestHttp::getClient()->get($this->url . http_build_query($params));
 			$this->data = $this->parseData(\App\Json::decode($response->getBody()->getContents()));
-			if (isset($this->data['message']) && $this->data['error']) {
-				$this->data['message'] = $this->getTranslationResponseMessage($this->data['message']);
+			if (isset($this->data['error'])) {
+				$this->data['error'] = $this->getTranslationResponseMessage($this->data['error']);
 			}
-
 			if (isset($this->data['name'])) {
 				$this->response['links'][0] = self::EXTERNAL_URL . $params['country'] . '/' . urlencode(str_replace(' ', '-', $this->data['name'])) . '/' . urlencode($this->data['vat']);
 			}
-		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
+		} catch (\GuzzleHttp\Exception\GuzzleException $e) {;
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
 			$this->response['error'] = $this->getTranslationResponseMessage($this->response['error'] ?? $e->getResponse()->getReasonPhrase());
 		}
+
 		if ($this->data && empty($this->data['error'])) {
 			switch ($params['country']) {
 				case 'no':
@@ -275,15 +275,17 @@ class DkCvr extends Base
 		return \App\Utils::flattenKeys($data, 'ucfirst');
 	}
 
-	//to refactor and if possible move to main method in base class
 	protected function getTranslationResponseMessage(string $message): string
 	{
 		switch ($message) {
 			case 'Not Found':
-				$translatedMessage = \App\Language::translate('LBL_DK_CVR_NOT_FOUND', 'Other.RecordCollector');
+				$translatedMessage = \App\Language::translate('LBL_NO_FOUND_RECORD', 'Other.RecordCollector');
 				break;
-			case 'You have provided too many options, only one option at a time.':
-				$translatedMessage = \App\Language::translate('LBL_DK_CVR_TO_MANY_OPTIONS', 'Other.RecordCollector');
+			case 'TOO_MANY_OPTIONS':
+				$translatedMessage = \App\Language::translate('LBL_TOO_MANY_OPTIONS', 'Other.RecordCollector');
+				break;
+			case 'NO_SEARCH':
+				$translatedMessage = \App\Language::translate('LBL_NO_FILLED_DATA', 'Other.RecordCollector');
 				break;
 			default :
 				$translatedMessage = $message;

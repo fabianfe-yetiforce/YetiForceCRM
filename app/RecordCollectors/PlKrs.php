@@ -23,25 +23,25 @@ class PlKrs extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-krs-pl';
+	public string $icon = 'yfi-krs-pl';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_PL_KRS';
+	public string $label = 'LBL_PL_KRS';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_PL_KRS_DESC';
+	public string $description = 'LBL_PL_KRS_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://prs.ms.gov.pl/krs/openApi';
+	public string $docUrl = 'https://prs.ms.gov.pl/krs/openApi';
 
 	/** @var string KRS sever address */
 	protected string $url = 'https://api-krs.ms.gov.pl/api/krs/OdpisAktualny/';
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'ncr' => [
 			'labelModule' => '_Base',
 			'label' => 'Registration number 1',
@@ -50,7 +50,7 @@ class PlKrs extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'ncr' => 'registration_number_1',
 		],
@@ -63,7 +63,7 @@ class PlKrs extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'daneDzial1DanePodmiotuNazwa' => 'accountname',
 			'daneDzial1DanePodmiotuIdentyfikatoryRegon' => 'registration_number_2',
@@ -119,10 +119,6 @@ class PlKrs extends Base
 		]
 	];
 
-	protected array $validationMessages = [
-		// to fill messages
-	];
-
 	/** {@inheritdoc} */
 	public function search(): array
 	{
@@ -130,11 +126,11 @@ class PlKrs extends Base
 			return [];
 		}
 		$this->moduleName = $this->request->getModule();
-		$ncr = str_replace([' ', ',', '.', '-'], '', $this->request->getByType('ncr', 'Text'));
-		if (!$ncr) {
+		$ncrNumber = str_replace([' ', ',', '.', '-'], '', $this->request->getByType('ncr', 'Text'));
+		if (!$ncrNumber) {
 			return [];
 		}
-		$this->getDataFromApi($ncr);
+		$this->getDataFromApi($ncrNumber);
 		$this->parseData();
 		$this->loadData();
 		return $this->response;
@@ -199,12 +195,14 @@ class PlKrs extends Base
 		$pkd = $pkd['kodDzial'] . '.' . $pkd['kodKlasa'] . '.' . $pkd['kodPodklasa'];
 	}
 
-//to refactor and move to main method in base class
 	protected function getTranslationResponseMessage(string $message): string
 	{
 		switch ($message) {
 			case 'Not Found':
 				$translatedMessage = \App\Language::translate('LBL_NO_FOUND_RECORD', 'Other.RecordCollector');
+				break;
+			case 'Bad Request':
+				$translatedMessage = \App\Language::translate('LBL_BAD_REQUEST', 'Other.RecordCollector');
 				break;
 			default :
 				$translatedMessage = $message;

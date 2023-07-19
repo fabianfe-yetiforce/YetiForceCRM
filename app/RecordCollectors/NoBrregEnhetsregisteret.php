@@ -23,19 +23,19 @@ class NoBrregEnhetsregisteret extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-enhetsregisteret-no';
+	public string $icon = 'yfi-enhetsregisteret-no';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_NO_BRREG_ENHETSREGISTERET';
+	public string $label = 'LBL_NO_BRREG_ENHETSREGISTERET';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_NO_BRREG_ENHETSREGISTERET_DESC';
+	public string $description = 'LBL_NO_BRREG_ENHETSREGISTERET_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://www.brreg.no/produkter-og-tjenester/apne-data/';
+	public string $docUrl = 'https://www.brreg.no/produkter-og-tjenester/apne-data/';
 
 	/** @var string CH sever address */
 	public const EXTERNAL_URL = 'https://data.brreg.no/enhetsregisteret/oppslag/enheter/';
@@ -44,7 +44,7 @@ class NoBrregEnhetsregisteret extends Base
 	private string $url = 'https://data.brreg.no/enhetsregisteret/api/enheter/';
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'companyNumber' => [
 			'labelModule' => '_Base',
 			'label' => 'Registration number 1',
@@ -52,7 +52,7 @@ class NoBrregEnhetsregisteret extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'companyNumber' => 'registration_number_1',
 		],
@@ -65,7 +65,7 @@ class NoBrregEnhetsregisteret extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'navn' => 'accountname',
 			'organisasjonsnummer' => 'registration_number_1',
@@ -112,10 +112,6 @@ class NoBrregEnhetsregisteret extends Base
 		],
 	];
 
-	protected array $validationMessages = [
-		// to fill messages
-	];
-
 	/** {@inheritdoc} */
 	public function search(): array
 	{
@@ -144,14 +140,12 @@ class NoBrregEnhetsregisteret extends Base
 			$response = \App\RequestHttp::getClient()->get($this->url . $companyNumber);
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-			$this->response['error'] = $this->getTranslationResponseMessage($e->getMessage());
 			if (400 === $e->getCode()) {
 				$this->response['error'] = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
 				return;
 			}
 		}
-		//bez sensu, isset jest zawsze true
-		$this->data = isset($response) ? $this->parseData(\App\Json::decode($response->getBody()->getContents())) : [];
+		$this->data = !empty($response) ? $this->parseData(\App\Json::decode($response->getBody()->getContents())) : [];
 		$this->response['links'][0] = self::EXTERNAL_URL . $companyNumber;
 		unset($this->data['_linksSelfHref']);
 	}
@@ -166,23 +160,5 @@ class NoBrregEnhetsregisteret extends Base
 	private function parseData(array $data): array
 	{
 		return \App\Utils::flattenKeys($data, 'ucfirst');
-	}
-
-	//to refactor and move to main method in base class
-	protected function getTranslationResponseMessage(string $message): string
-	{
-		switch ($message) {
-			case 'Not Found':
-				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
-				break;
-			case 'You have provided too many options, only one option at a time.':
-				$translatedMessage = \App\Language::translate('LBL_DK_CVR_TO_MANY_OPTIONS', 'Other.RecordCollector');
-				break;
-			default :
-				$translatedMessage = $message;
-				break;
-		}
-
-		return $translatedMessage;
 	}
 }

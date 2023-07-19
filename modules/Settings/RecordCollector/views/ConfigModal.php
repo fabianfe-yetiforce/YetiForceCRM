@@ -50,7 +50,7 @@ class Settings_RecordCollector_ConfigModal_View extends \App\Controller\ModalSet
 	{
 		$fields = [];
 		$collectorInstance = \App\RecordCollector::getInstance("App\\RecordCollectors\\{$recordCollectorName}", 'Accounts');
-		$defaultParams = ['uitype' => 1, 'value' => '', 'displaytype' => 1, 'typeofdata' => 'V~M', 'presence' => '', 'isEditableReadOnly' => false, 'maximumlength' => '255'];
+		$defaultParams = ['uitype' => 1, 'value' => '', 'displaytype' => 1, 'typeofdata' => 'V~M', 'presence' => '', 'isEditableReadOnly' => false, 'maximumlength' => '65535'];
 		$configData = (new \App\Db\Query())->select(['params'])->from('vtiger_links')->where(['linktype' => 'EDIT_VIEW_RECORD_COLLECTOR', 'linklabel' => $recordCollectorName])->scalar();
 		$configData = $configData ? \App\Json::decode($configData) : [];
 

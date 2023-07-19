@@ -32,25 +32,25 @@ class UkCompaniesHouse extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-companies-house-uk';
+	public string $icon = 'yfi-companies-house-uk';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_UK_CH';
+	public string $label = 'LBL_UK_CH';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_UK_CH_DESC';
+	public string $description = 'LBL_UK_CH_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://developer.company-information.service.gov.uk/';
+	public string $docUrl = 'https://developer.company-information.service.gov.uk/';
 
 	/** @var string CH sever address */
 	private string $url = 'https://api.company-information.service.gov.uk';
 
 	/** {@inheritdoc} */
-	public $settingsFields = [
+	public array $settingsFields = [
 		'api_key' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'LBL_API_KEY'],
 	];
 
@@ -65,7 +65,7 @@ class UkCompaniesHouse extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'ncr' => [
 			'labelModule' => '_Base',
 			'label' => 'Registration number 1',
@@ -77,7 +77,7 @@ class UkCompaniesHouse extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'ncr' => 'registration_number_1',
 			'companyName' => 'accountname'
@@ -97,7 +97,7 @@ class UkCompaniesHouse extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'company_name' => 'accountname',
 			'company_number' => 'registration_number_1',

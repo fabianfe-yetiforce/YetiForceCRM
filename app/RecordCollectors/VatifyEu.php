@@ -25,25 +25,25 @@ class VatifyEu extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-vatify-eu';
+	public string $icon = 'yfi-vatify-eu';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_VATIFY_EU';
+	public string $label = 'LBL_VATIFY_EU';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_VATIFY_DESC_EU';
+	public string $description = 'LBL_VATIFY_DESC_EU';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://www.vatify.eu/docs/api/getting-started/';
+	public string $docUrl = 'https://www.vatify.eu/docs/api/getting-started/';
 
 	/** {@inheritdoc} */
 	private string $url = 'https://api.vatify.eu/v1/';
 
 	/** {@inheritdoc} */
-	public $settingsFields = [
+	public array $settingsFields = [
 		'client_id' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'LBL_CLIENT_ID'],
 		'access_key' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'LBL_ACCESS_KEY'],
 	];
@@ -57,7 +57,7 @@ class VatifyEu extends Base
 	private string $bearerToken;
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'country' => [
 			'labelModule' => '_Base',
 			'label' => 'Country',
@@ -121,7 +121,7 @@ class VatifyEu extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'vatNumber' => 'vat_id',
 			'country' => 'addresslevel1a'
@@ -145,7 +145,7 @@ class VatifyEu extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'title' => 'accountname',
 			'transliteratedTitle' => 'accountname',

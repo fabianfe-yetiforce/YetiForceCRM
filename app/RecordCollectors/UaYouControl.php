@@ -25,25 +25,25 @@ class UaYouControl extends Base
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-you-control';
+	public string $icon = 'yfi-you-control';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_UA_YOU_CONTROL';
+	public string $label = 'LBL_UA_YOU_CONTROL';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_UA_YOU_CONTROL_DESC';
+	public string $description = 'LBL_UA_YOU_CONTROL_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://youscore.com.ua/en/';
+	public string $docUrl = 'https://youscore.com.ua/en/';
 
 	/** @var string YouScore sever address */
 	private $url = 'https://api.youscore.com.ua/v1/companyInfo/';
 
 	/** {@inheritdoc} */
-	public $settingsFields = [
+	public array $settingsFields = [
 		'api_key' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'LBL_API_KEY'],
 	];
 
@@ -51,7 +51,7 @@ class UaYouControl extends Base
 	private $apiKey;
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'companyNumber' => [
 			'labelModule' => '_Base',
 			'label' => 'Registration number 1',
@@ -59,7 +59,7 @@ class UaYouControl extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'companyNumber' => 'registration_number_1',
 		],
@@ -72,7 +72,7 @@ class UaYouControl extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'name' => 'accountname',
 			'address' => 'addresslevel8a',

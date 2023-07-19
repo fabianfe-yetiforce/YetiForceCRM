@@ -22,31 +22,31 @@ namespace App\RecordCollectors;
 class FrEnterpriseGouv extends Base
 {
 	/** @var int Number of items returned */
-	const LIMIT = 4;
+	public const LIMIT = 4;
 
 	/** {@inheritdoc} */
 	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
 
 	/** {@inheritdoc} */
-	public $icon = 'yfi-entreprise-gouv-fr';
+	public string $icon = 'yfi-entreprise-gouv-fr';
 
 	/** {@inheritdoc} */
-	public $label = 'LBL_FR_ENTERPRISE_GOUV';
+	public string $label = 'LBL_FR_ENTERPRISE_GOUV';
 
 	/** {@inheritdoc} */
-	public $displayType = 'FillFields';
+	public string $displayType = 'FillFields';
 
 	/** {@inheritdoc} */
-	public $description = 'LBL_FR_ENTERPRISE_GOUV_DESC';
+	public string $description = 'LBL_FR_ENTERPRISE_GOUV_DESC';
 
 	/** {@inheritdoc} */
-	public $docUrl = 'https://api.gouv.fr/les-api/api-entreprise/';
+	public string $docUrl = 'https://api.gouv.fr/les-api/api-entreprise/';
 
 	/** @var string Server address */
 	private string $url = 'https://recherche-entreprises.api.gouv.fr/';
 
 	/** {@inheritdoc} */
-	protected $fields = [
+	protected array $fields = [
 		'companyName' => [
 			'labelModule' => '_Base',
 			'label' => 'Account name',
@@ -62,7 +62,7 @@ class FrEnterpriseGouv extends Base
 	];
 
 	/** {@inheritdoc} */
-	protected $modulesFieldsMap = [
+	protected array $modulesFieldsMap = [
 		'Accounts' => [
 			'companyName' => 'accountname',
 			'sicCode' => 'siccode',
@@ -87,7 +87,7 @@ class FrEnterpriseGouv extends Base
 	];
 
 	/** {@inheritdoc} */
-	public $formFieldsToRecordMap = [
+	public array $formFieldsToRecordMap = [
 		'Accounts' => [
 			'nom_complet' => 'accountname',
 			'siren' => 'vat_id',
@@ -178,8 +178,7 @@ class FrEnterpriseGouv extends Base
 			$data = isset($response) ? \App\Json::decode($response->getBody()->getContents()) : [];
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
-
-			$this->response['error'] = $this->getTranslationResponseMessage($e->getMessage());
+			$this->response['error'] = $this->getTranslationResponseMessage($e->getResponse()->getReasonPhrase());
 		}
 		if (empty($data)) {
 			return;
@@ -202,12 +201,14 @@ class FrEnterpriseGouv extends Base
 		return \App\Utils::flattenKeys($data, 'ucfirst');
 	}
 
-	//to refactor and if possible move to main method in base class
 	protected function getTranslationResponseMessage(string $message): string
 	{
 		switch ($message) {
 			case 'Not Found':
-				$translatedMessage = \App\Language::translate('LBL_DK_CVR_NOT_FOUND', 'Other.RecordCollector');
+				$translatedMessage = \App\Language::translate('LBL_NO_FOUND_RECORD', 'Other.RecordCollector');
+				break;
+			case 'Bad Request':
+				$translatedMessage = \App\Language::translate('LBL_FR_GOUV_BAD_REQUEST', 'Other.RecordCollector');
 				break;
 			default :
 				$translatedMessage = $message;
