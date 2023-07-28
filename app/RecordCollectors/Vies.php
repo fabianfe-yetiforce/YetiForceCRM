@@ -19,7 +19,7 @@ namespace App\RecordCollectors;
 class Vies extends Base
 {
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Competition', 'Partners'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi yfi-vies';
@@ -153,19 +153,5 @@ class Vies extends Base
 			$response['error'] = $this->getTranslationResponseMessage($e->faultstring);
 		}
 		return $response;
-	}
-
-	protected function getTranslationResponseMessage(string $message): string
-	{
-		switch ($message) {
-			case 'Not Found':
-				$translatedMessage = \App\Language::translate('LBL_BAD_REQUEST', 'Other.RecordCollector');
-				break;
-			default :
-				$translatedMessage = $message;
-				break;
-		}
-
-		return $translatedMessage;
 	}
 }

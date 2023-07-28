@@ -23,7 +23,7 @@ class OrbIntelligence extends Base
 	public const LIMIT = 4;
 
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Partners', 'Vendors', 'Competition'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-orb';

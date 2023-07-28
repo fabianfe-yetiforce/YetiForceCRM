@@ -24,6 +24,9 @@ class Settings_RecordCollector_ConfigModal_View extends \App\Controller\ModalSet
 	{
 		$qualifiedModuleName = $request->getModule(false);
 		$viewer = $this->getViewer($request);
+		$recordModel = Settings_RecordCollector_Record_Model::getInstanceByName($request->getRaw('recordCollectorName'));
+		$viewer->assign('RECORD_MODEL', $recordModel);
+		$viewer->assign('MODULE_MODEL', $recordModel->getModule());
 		$viewer->assign('FIELDS', $this->getFields($request->getByType('recordCollectorName')));
 		$viewer->view('ConfigModal.tpl', $qualifiedModuleName);
 	}
@@ -48,12 +51,19 @@ class Settings_RecordCollector_ConfigModal_View extends \App\Controller\ModalSet
 	 */
 	private function getFields(string $recordCollectorName): array
 	{
-		$fields = [];
+		$fields = $configData = $tabIds = [];
 		$collectorInstance = \App\RecordCollector::getInstance("App\\RecordCollectors\\{$recordCollectorName}", 'Accounts');
 		$defaultParams = ['uitype' => 1, 'value' => '', 'displaytype' => 1, 'typeofdata' => 'V~M', 'presence' => '', 'isEditableReadOnly' => false, 'maximumlength' => '65535'];
-		$configData = (new \App\Db\Query())->select(['params'])->from('vtiger_links')->where(['linktype' => 'EDIT_VIEW_RECORD_COLLECTOR', 'linklabel' => $recordCollectorName])->scalar();
-		$configData = $configData ? \App\Json::decode($configData) : [];
-
+		$recordData = (new \App\Db\Query())->select(['tabid','params'])->from('vtiger_links')->where(['linktype' => 'EDIT_VIEW_RECORD_COLLECTOR', 'linklabel' => $recordCollectorName])->createCommand()->query();
+		foreach ($recordData->readAll() as $row => $value) {
+			if (isset($value['tabid'])) {
+				array_push($tabIds, $value['tabid']);
+			}
+			if ($row === 0 && !empty($value['params'])) {
+				$configData = \App\Json::decode($value['params']);
+			}
+		}
+		$configData['tabid'] = $tabIds;
 		foreach ($collectorInstance->settingsFields as $fieldName => $fieldParams) {
 			$fieldParams['column'] = $fieldName;
 			$fieldParams['name'] = $fieldName;

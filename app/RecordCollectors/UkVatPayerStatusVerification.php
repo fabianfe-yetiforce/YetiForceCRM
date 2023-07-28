@@ -21,7 +21,7 @@ namespace App\RecordCollectors;
 class UkVatPayerStatusVerification extends Base
 {
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Competition', 'Partners'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-vat-uk';
@@ -110,19 +110,5 @@ class UkVatPayerStatusVerification extends Base
 			];
 		}
 		return $response;
-	}
-
-	protected function getTranslationResponseMessage(string $message): string
-	{
-		switch ($message) {
-			case 'Bad Request':
-				$translatedMessage = \App\Language::translate('LBL_BAD_REQUEST', 'Other.RecordCollector');
-				break;
-			default :
-				$translatedMessage = $message;
-				break;
-		}
-
-		return $translatedMessage;
 	}
 }

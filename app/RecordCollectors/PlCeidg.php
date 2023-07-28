@@ -18,8 +18,11 @@ namespace App\RecordCollectors;
  */
 class PlCeidg extends Base
 {
+	/** @var int Limit for fetching companies */
+	public const LIMIT = 4;
+
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Competition'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-cedig-pl';
@@ -185,9 +188,6 @@ class PlCeidg extends Base
 			'adresDzialalnosciKraj' => 'addresslevel1a'
 		]
 	];
-
-	/** @var int Limit for fetching companies */
-	const LIMIT = 4;
 
 	/** {@inheritdoc} */
 	public function isActive(): bool

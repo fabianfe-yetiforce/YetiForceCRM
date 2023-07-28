@@ -19,13 +19,11 @@ namespace App\RecordCollectors;
  */
 class UsaEdgarRegistryFromSec extends Base
 {
-	// no api key
-
 	/** @var int Central Index Key length */
 	public const CIK_LEN = 10;
 
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Partners', 'Vendors', 'Competition'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-edgar-usa';
@@ -137,13 +135,6 @@ class UsaEdgarRegistryFromSec extends Base
 		]
 	];
 
-	/**
-	 * @var array
-	 */
-	protected array $validationMessages = [
-		// to fill messages
-	];
-
 	/** {@inheritdoc} */
 	public function search(): array
 	{
@@ -198,24 +189,5 @@ class UsaEdgarRegistryFromSec extends Base
 		}
 		unset($this->data['filings']);
 		$this->data = \App\Utils::flattenKeys($this->data, 'ucfirst');
-	}
-
-	//to refactor and move to main method in base class
-	protected function getTranslationResponseMessage(string $message): string
-	{
-		//to fill
-		switch ($message) {
-			case 'Not Found':
-				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
-				break;
-			case 'option for no api key':
-				$translatedMessage ='';
-				break;
-			default :
-				$translatedMessage = $message;
-				break;
-		}
-
-		return $translatedMessage;
 	}
 }

@@ -22,7 +22,7 @@ namespace App\RecordCollectors;
 class UaYouControl extends Base
 {
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-you-control';

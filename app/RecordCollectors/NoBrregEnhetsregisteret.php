@@ -20,7 +20,7 @@ namespace App\RecordCollectors;
 class NoBrregEnhetsregisteret extends Base
 {
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-enhetsregisteret-no';

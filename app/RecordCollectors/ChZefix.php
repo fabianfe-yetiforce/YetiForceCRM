@@ -21,7 +21,7 @@ namespace App\RecordCollectors;
 class ChZefix extends Base
 {
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-zefix-ch';
@@ -45,6 +45,7 @@ class ChZefix extends Base
 	public array $settingsFields = [
 		'username' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'Username'],
 		'password' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'Password'],
+		'tabid' => ['required' => 0, 'purifyType' => 'Text', 'label' => 'LBL_MODULES'],
 	];
 
 	/** @var string Username. */
@@ -158,13 +159,6 @@ class ChZefix extends Base
 		],
 	];
 
-	/**
-	 * @var array
-	 */
-	protected array $validationMessages = [
-		// to fill messages
-	];
-
 	/** {@inheritdoc} */
 	public function isActive(): bool
 	{
@@ -276,12 +270,13 @@ class ChZefix extends Base
 		return \App\Utils::flattenKeys($data, 'ucfirst');
 	}
 
-	// too fill when chzefix wil show up in panel
+	/**
+	 * @param string $message
+	 * @return string
+	 */
 	protected function getTranslationResponseMessage(string $message): string
 	{
-
 		switch ($message) {
-//
 			default :
 				$translatedMessage = $message;
 				break;

@@ -22,7 +22,7 @@ namespace App\RecordCollectors;
 class VatifyEu extends Base
 {
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-vatify-eu';
@@ -372,21 +372,5 @@ class VatifyEu extends Base
 		if (empty($this->bearerToken)) {
 			$this->response['error'] = \App\Language::translate('LBL_VATIFY_EU_NO_AUTH', 'Other.RecordCollector');
 		}
-	}
-
-	//to refactor and move to main method in base class
-	protected function getTranslationResponseMessage(string $message): string
-	{
-		switch ($message) {
-			case 'Not Found':
-				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
-				break;
-// to fill
-			default :
-				$translatedMessage = $message;
-				break;
-		}
-
-		return $translatedMessage;
 	}
 }

@@ -12,6 +12,7 @@
 
 namespace App\RecordCollectors;
 
+use App\Encryption;
 use App\Request;
 
 /**
@@ -79,6 +80,8 @@ class Base
 		if (!\class_exists($class)) {
 			return;
 		}
+		//do wyciągnięcia z bazy allowedModules(tabIDs) / kolumna Modules w widoku
+
 		$config = (new \ReflectionClass($class))->getStaticProperties();
 		if (isset($config['allowedModules'])) {
 			$this->allowedModules = $config['allowedModules'];
@@ -155,6 +158,7 @@ class Base
 	{
 		return $this->modulesFieldsMap[$moduleName];
 	}
+
 
 	/**
 	 * Check whether it is active.
@@ -305,66 +309,38 @@ class Base
 		return $recordModel;
 	}
 
-	public function setDataFromRequest(Request $request): void
-	{
-		foreach ($this->getEditFields() as $fieldName => $fieldModel) {
-			if ($request->has($fieldName)) {
-				$value = $request->isEmpty($fieldName) && !$fieldModel->isMandatory() ? '' : $request->getByType($fieldName, $fieldModel->get('purifyType'));
-				if ('api_key' === $fieldName) {
-					$value = App\Encryption::getInstance()->encrypt($value);
-				}
-				$fieldModel->getUITypeModel()->validate($value, true);
-				$value = $fieldModel->getUITypeModel()->getDBValue($value);
-
-				if (\in_array($fieldName, ['api_key', 'modules'])) {
-					$this->set($fieldName, $value);
-				} else {
-					$parameters = $this->getParameters();
-					$parameters[$fieldName] = $value;
-					$this->set('parameters', \App\Json::encode($parameters));
-				}
-			}
-		}
-	}
-
-	public function getEditFields(): array
-	{
-		$fields = [];
-		foreach (['api_key', 'modules'] as $fieldName) {
-			$fields[$fieldName] = $this->getFieldInstanceByName($fieldName);
-		}
-
-		return $fields;
-	}
-
-	public function getFieldInstanceByName(string $name)
-	{
-		$moduleName = 'Settings:RecordCollector';
-		$field = ['uitype' => 33, 'column' => $name, 'name' => $name, 'displaytype' => 1, 'typeofdata' => 'V~M', 'presence' => 0, 'isEditableReadOnly' => false];
-		switch ($name) {
-			case 'api_key':
-				$field['uitype'] = 99;
-				$field['label'] = 'FL_API_KEY';
-				$field['purifyType'] = \App\Purifier::ALNUM;
-				$field['fromOutsideList'] = true;
-				$field['maximumlength'] = '100';
-				break;
-			case 'modules':
-				$field['uitype'] = 33;
-				$field['label'] = 'LBL_MODULES';
-				$field['typeofdata'] = 'V~O';
-				$field['maximumlength'] = '65535';
-				$field['purifyType'] = \App\Purifier::TEXT;
-				break;
-			default:
-				$field = [];
-				break;
-		}
-
-		return $field ? \Vtiger_Field_Model::init($moduleName, $field, $name) : null;
-	}
-
+	/**
+	 * @param string $message
+	 * @return string
+	 */
 	protected function getTranslationResponseMessage(string $message): string
 	{
-		// to fill base validation messages
-	}}
+		switch ($message) {
+			case 'Not Found':
+				$translatedMessage = \App\Language::translate('LBL_NO_FOUND_RECORD', 'Other.RecordCollector');
+				break;
+			case 'TOO_MANY_OPTIONS':
+				$translatedMessage = \App\Language::translate('LBL_TOO_MANY_OPTIONS', 'Other.RecordCollector');
+				break;
+			case 'NO_SEARCH':
+				$translatedMessage = \App\Language::translate('LBL_NO_FILLED_DATA', 'Other.RecordCollector');
+				break;
+			case 'Bad Request':
+				$translatedMessage = \App\Language::translate('LBL_BAD_REQUEST', 'Other.RecordCollector');
+				break;
+			default :
+				$translatedMessage = $message;
+				break;
+		}
+
+		return $translatedMessage;
+	}
+
+	/**
+	 * @return void
+	 */
+	public function getAllowedModules()
+	{
+		// return availability in module
+	}
+}

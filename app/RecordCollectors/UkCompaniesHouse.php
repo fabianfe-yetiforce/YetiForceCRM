@@ -29,7 +29,7 @@ class UkCompaniesHouse extends Base
 	public const LIMIT = 4;
 
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Competition'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-companies-house-uk';
@@ -56,13 +56,6 @@ class UkCompaniesHouse extends Base
 
 	/** @var string Api Key. */
 	private $apiKey;
-
-	/**
-	 * @var array
-	 */
-	protected array $validationMessages = [
-		// to fill messages
-	];
 
 	/** {@inheritdoc} */
 	protected array $fields = [
@@ -307,21 +300,5 @@ class UkCompaniesHouse extends Base
 			}
 		}
 		return $names;
-	}
-
-	//to refactor and move to main method in base class
-	protected function getTranslationResponseMessage(string $message): string
-	{
-		switch ($message) {
-			case 'Not Found':
-				$translatedMessage = \App\Language::translate('LBL_NO_BRREG_ENHETSREGISTERET_400', 'Other.RecordCollector');
-				break;
-//to fill
-			default :
-				$translatedMessage = $message;
-				break;
-		}
-
-		return $translatedMessage;
 	}
 }

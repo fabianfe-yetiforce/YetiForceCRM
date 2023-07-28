@@ -20,7 +20,7 @@ namespace App\RecordCollectors;
 class PlKrs extends Base
 {
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-krs-pl';
@@ -193,22 +193,5 @@ class PlKrs extends Base
 	private function convertPkd(array &$pkd): void
 	{
 		$pkd = $pkd['kodDzial'] . '.' . $pkd['kodKlasa'] . '.' . $pkd['kodPodklasa'];
-	}
-
-	protected function getTranslationResponseMessage(string $message): string
-	{
-		switch ($message) {
-			case 'Not Found':
-				$translatedMessage = \App\Language::translate('LBL_NO_FOUND_RECORD', 'Other.RecordCollector');
-				break;
-			case 'Bad Request':
-				$translatedMessage = \App\Language::translate('LBL_BAD_REQUEST', 'Other.RecordCollector');
-				break;
-			default :
-				$translatedMessage = $message;
-				break;
-		}
-
-		return $translatedMessage;
 	}
 }

@@ -20,7 +20,7 @@ namespace App\RecordCollectors;
 class BrReceitaWsCnpj extends Base
 {
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-receita-cnpj-br';
@@ -46,8 +46,7 @@ class BrReceitaWsCnpj extends Base
 	/** {@inheritdoc} */
 	public array $settingsFields = [
 		'api_key' => ['required' => 1, 'purifyType' => 'Text', 'label' => 'LBL_API_KEY_OPTIONAL'],
-		//zrobic arraymerge z class base
-		'modules' => ['required' => 0, 'purifyType' => 'Text', 'label' => 'LBL_MODULES'],
+		'tabid' => ['required' => 0, 'purifyType' => 'Text', 'label' => 'LBL_MODULES']
 	];
 
 	/** {@inheritdoc} */
@@ -70,10 +69,6 @@ class BrReceitaWsCnpj extends Base
 		'Vendors' => [
 			'cnpj' => 'registration_number_1',
 		]
-	];
-
-	protected array $validationMessages = [
-		// to fill messages
 	];
 
 	/** {@inheritdoc} */
@@ -170,7 +165,6 @@ class BrReceitaWsCnpj extends Base
 			}
 			$response = \App\RequestHttp::getClient()->get($this->url . $cnpjNumber, $options ?? []);
 			$data = $this->parseData(\App\Json::decode($response->getBody()->getContents()));
-// na froncie wrzucić require na pole z numerem
 			if (isset($data['status']) && 'ERROR' === $data['status']) {
 				$this->response['error'] = $this->getTranslationResponseMessage($data['message']);
 				unset($this->data['fields']);
@@ -208,6 +202,10 @@ class BrReceitaWsCnpj extends Base
 		}
 	}
 
+	/**
+	 * @param string $message
+	 * @return string
+	 */
 	protected function getTranslationResponseMessage(string $message): string
 	{
 		switch ($message) {

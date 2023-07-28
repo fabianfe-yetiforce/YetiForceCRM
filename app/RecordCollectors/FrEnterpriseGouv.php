@@ -25,7 +25,7 @@ class FrEnterpriseGouv extends Base
 	public const LIMIT = 4;
 
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-entreprise-gouv-fr';
@@ -130,10 +130,6 @@ class FrEnterpriseGouv extends Base
 		],
 	];
 
-	protected array $validationMessages = [
-		// to fill messages
-	];
-
 	/** {@inheritdoc} */
 	public function search(): array
 	{
@@ -201,6 +197,10 @@ class FrEnterpriseGouv extends Base
 		return \App\Utils::flattenKeys($data, 'ucfirst');
 	}
 
+	/**
+	 * @param string $message
+	 * @return string
+	 */
 	protected function getTranslationResponseMessage(string $message): string
 	{
 		switch ($message) {

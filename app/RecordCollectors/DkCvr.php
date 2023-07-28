@@ -21,7 +21,7 @@ namespace App\RecordCollectors;
 class DkCvr extends Base
 {
 	/** {@inheritdoc} */
-	public $allowedModules = ['Accounts', 'Leads', 'Vendors', 'Partners', 'Competition'];
+	public $allowedModules = [];
 
 	/** {@inheritdoc} */
 	public string $icon = 'yfi-cvr-dk';
@@ -50,6 +50,7 @@ class DkCvr extends Base
 	/** {@inheritdoc} */
 	public array $settingsFields = [
 		'token' => ['required' => 0, 'purifyType' => 'Text', 'label' => 'LBL_API_KEY_OPTIONAL'],
+		'tabid' => ['required' => 0, 'purifyType' => 'Text', 'label' => 'LBL_MODULES'],
 	];
 
 	/** {@inheritdoc} */
@@ -244,7 +245,7 @@ class DkCvr extends Base
 			if (isset($this->data['name'])) {
 				$this->response['links'][0] = self::EXTERNAL_URL . $params['country'] . '/' . urlencode(str_replace(' ', '-', $this->data['name'])) . '/' . urlencode($this->data['vat']);
 			}
-		} catch (\GuzzleHttp\Exception\GuzzleException $e) {;
+		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
 			\App\Log::warning($e->getMessage(), 'RecordCollectors');
 			$this->response['error'] = $this->getTranslationResponseMessage($this->response['error'] ?? $e->getResponse()->getReasonPhrase());
 		}
@@ -273,25 +274,5 @@ class DkCvr extends Base
 	private function parseData(array $data): array
 	{
 		return \App\Utils::flattenKeys($data, 'ucfirst');
-	}
-
-	protected function getTranslationResponseMessage(string $message): string
-	{
-		switch ($message) {
-			case 'Not Found':
-				$translatedMessage = \App\Language::translate('LBL_NO_FOUND_RECORD', 'Other.RecordCollector');
-				break;
-			case 'TOO_MANY_OPTIONS':
-				$translatedMessage = \App\Language::translate('LBL_TOO_MANY_OPTIONS', 'Other.RecordCollector');
-				break;
-			case 'NO_SEARCH':
-				$translatedMessage = \App\Language::translate('LBL_NO_FILLED_DATA', 'Other.RecordCollector');
-				break;
-			default :
-				$translatedMessage = $message;
-				break;
-		}
-
-		return $translatedMessage;
 	}
 }

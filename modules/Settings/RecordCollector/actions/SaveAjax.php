@@ -54,6 +54,7 @@ class Settings_RecordCollector_SaveAjax_Action extends Settings_Vtiger_Save_Acti
 	 */
 	public function changeFeatured(App\Request $request): void
 	{
+		//to refactor
 		$collectorName = $request->getByType('collector');
 		\App\Db::getInstance()->createCommand()
 			->update('vtiger_links',
@@ -77,14 +78,24 @@ class Settings_RecordCollector_SaveAjax_Action extends Settings_Vtiger_Save_Acti
 	{
 		$config = $request->getArray('config');
 		$recordCollectorName = $request->getByType('collector');
+
 		if (empty($config) || !$recordCollectorName) {
 			throw new \App\Exceptions\IllegalValue('ERR_NOT_ALLOWED_VALUE||', 406);
 		}
-		\App\Db::getInstance()->createCommand()
-			->update('vtiger_links',
-				['params' => \App\Json::encode($config)],
-				['linktype' => 'EDIT_VIEW_RECORD_COLLECTOR', 'linklabel' => $recordCollectorName])
-			->execute();
+
+		$recordsModel = Settings_RecordCollector_Record_Model::getAllInstancesByName($recordCollectorName);
+		//to refactor and check
+		foreach ($recordsModel as $record) {
+			$record->setDataFromRequest($request);
+			$response = new Vtiger_Response();
+			try {
+				$result = $record->save();
+				$response->setResult([$result]);
+			} catch (Exception $e) {
+				$response->setError($e->getMessage());
+			}
+			$response->emit();
+		}
 
 		$response = new Vtiger_Response();
 		$response->setResult(['success' => true, 'message' => \App\Language::translate('LBL_SAVE_NOTIFY_OK', $request->getModule(false))]);
